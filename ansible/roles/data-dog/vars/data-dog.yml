@@ -1,0 +1,2 @@
+api_key: "{{ lookup('env', 'EMPIRE_DATA_DOG_API_KEY') }}"
+tags: "{{ lookup('env', 'EMPIRE_DATA_DOG_TAGS') }}"

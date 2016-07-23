@@ -1,0 +1,42 @@
+{
+  "variables": {
+    "changes": "{{ env `CHANGES` }}",
+    "gitinfo": "{{ env `GITINFO` }}",
+    "branch": "{{ env `BRANCH` }}"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "name": "dd-empire-us-east-1",
+      "access_key": "",
+      "secret_key": "",
+      "region": "us-east-1",
+      "source_ami": "ami-1a15db77",
+      "instance_type": "m3.medium",
+      "ssh_username": "ubuntu",
+      "ssh_timeout": "5m",
+      "ami_name": "Empire DD Layer {{user `branch` | clean_ami_name}} {{isotime | clean_ami_name}}",
+      "ami_regions": ["us-west-1", "us-west-2", "eu-west-1"],
+      "tags": {
+        "changes": "{{user `changes`}}",
+        "gitinfo": "{{user `gitinfo`}}"
+      },
+      "ami_groups": ["all"]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "ansible",
+      "destination": "/tmp/ansible"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "mkdir -p /etc/empire/ansible/layers/",
+        "mv /tmp/ansible /etc/empire/ansible/layers/dd-agent",
+        "printf \"\n- include: /etc/empire/ansible/layers/dd-agent/site.yml\" >> /etc/empire/ansible/site.yml"
+      ]
+    }
+  ]
+}
